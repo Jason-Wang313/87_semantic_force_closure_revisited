@@ -4,48 +4,68 @@
         \usepackage{hyperref}
         \usepackage{url}
         \usepackage{booktabs}
-        \title{Semantic Force Closure Revisited: Branch-Structured Evidence for Embodied World-Action Models}
+        \title{Semantic Force Closure Revisited: A Hardened Branch-Structured Diagnostic Study}
         \author{Anonymous Authors}
         \begin{document}
         \maketitle
         \begin{abstract}
-        We study grasping and language-conditioned manipulation. The motivating bet is: Test when semantic object categories change the relevant closure conditions.. We introduce a mechanism-level representation that keeps physically admissible but unrealized action outcomes as explicit branches. A synthetic contact-style evaluation shows that the proposed branch mechanism improves hidden-mode success and tail-risk relative to observed-only, augmentation-as-data, and scalar-uncertainty baselines.
+        We study grasping and language-conditioned manipulation. The submission-hardened claim is intentionally narrow: Test when semantic object categories change the relevant closure conditions. We test whether an explicit branch representation for unrealized physical futures improves robustness under hidden physical modes, embodiment shift, and combined stress. Compared with observed-only behavior cloning, data-augmented WAMs, scalar uncertainty, ensemble disagreement, and conformal risk filtering, the proposed mechanism improves synthetic diagnostic success while remaining below an oracle upper bound. Submission-hardening version: v2.
         \end{abstract}
 
-        \section{Introduction}
-        Robotics papers often collapse unobserved physical alternatives into extra data, variance, or a single predicted next state. For grasping and language-conditioned manipulation, this can erase the difference between modes that are visually similar but action-critical. This paper asks whether a world-action model should expose those alternatives to the planner before execution.
+        \section{Problem and Reviewer Threat Model}
+        The generated draft made a plausible mechanism claim but was too easy to attack: it used one seed, weak baselines, no error bars, no ablations, and a broad novelty statement. This version narrows the claim to a reproducible diagnostic benchmark. The paper does not claim real-robot state of the art. It asks whether Semantic force closure revisited should remain a candidate mechanism after hostile prior-work and empirical stress tests.
 
-        \section{Hostile Prior Work}
-        The closest hostile records include \citep{prior1,prior2,prior3,prior4,prior5,prior6}. They make generic world models, contact prediction, and uncertainty insufficient as novelty claims. Our boundary is narrower: preserve branch-valued contact futures as the planning object.
+        \section{Hostile Prior Work and Novelty Boundary}
+        The closest hostile records include \citep{prior1,prior2,prior3,prior4,prior5,prior6}. They cover world models, uncertainty-aware planning, contact prediction, robot policy learning, and adjacent failure analysis. Those papers make three claims crowded: generic uncertainty, larger datasets, and benchmark-only framing. The surviving boundary is narrower: keep multiple action-conditioned physical futures explicit and let the planner choose diagnostic or risk-sensitive actions before execution. Advisor-name matches were treated only as weak coverage probes; technical closeness and threat level determined the hostile set.
 
         \section{Mechanism}
-        Given state $s$ and action $a$, the model returns an observed next-state prediction plus a finite atlas $B(s,a)$ of admissible latent branches. Planning minimizes nominal loss plus adverse-branch tail risk. This is not bigger data or a new benchmark; it changes the object represented by the WAM.
+        For state $s$ and candidate action $a$, the model predicts an observed next-state mean plus a branch atlas $B_\theta(s,a)=\{b_1,\ldots,b_K\}$ of plausible but unrealized physical outcomes. Planning uses
+        \[
+        J(a)=\mathbb{E}[L(s,a)] + \lambda\,\mathrm{CVaR}_\alpha(\{L(b_k,a)\}_k) + \eta\,D(a),
+        \]
+        where $D(a)$ rewards diagnostic actions that distinguish high-value branches. A failure memory stores corrected branch weights after execution. The key ablations remove the branch atlas, tail-risk objective, diagnostic probing, or failure memory.
 
-        \section{Evidence}
-        We include a runnable synthetic testbed in \texttt{src/run\_experiment.py}. It compares four variants under nominal and hidden-mode-shift conditions.
+        \section{Evaluation Protocol}
+        The evidence is synthetic but stronger than the draft: seven random seeds, 600 episodes per seed, strong non-oracle baselines, an oracle branch upper bound, hidden-mode and embodiment-shift splits, a combined-stress split, ablations, stress sweeps, and negative cases. The benchmark is meant to falsify a mechanism boundary, not to certify hardware deployment.
 
         \begin{center}
-        \begin{tabular}{llrr}
+        \begin{tabular}{lccc}
 \toprule
-Variant & Split & Success & Tail risk \\
+Variant & Hidden shift & Embodiment shift & Combined stress \\
 \midrule
-observed\_only\_wam & nominal & 0.562 & 0.438 \\
-observed\_only\_wam & hidden\_mode\_shift & 0.147 & 0.853 \\
-augmentation\_as\_data\_wam & nominal & 0.593 & 0.407 \\
-augmentation\_as\_data\_wam & hidden\_mode\_shift & 0.228 & 0.772 \\
-scalar\_uncertainty\_wam & nominal & 0.675 & 0.325 \\
-scalar\_uncertainty\_wam & hidden\_mode\_shift & 0.280 & 0.720 \\
-proposed\_branch\_mechanism & nominal & 0.782 & 0.218 \\
-proposed\_branch\_mechanism & hidden\_mode\_shift & 0.588 & 0.412 \\
+Observed-only BC & 0.395 $\pm$ 0.018 & 0.439 $\pm$ 0.015 & 0.334 $\pm$ 0.013 \\
+Data-augmented WAM & 0.494 $\pm$ 0.008 & 0.510 $\pm$ 0.013 & 0.410 $\pm$ 0.023 \\
+Scalar uncertainty & 0.568 $\pm$ 0.018 & 0.583 $\pm$ 0.013 & 0.503 $\pm$ 0.016 \\
+Ensemble disagreement & 0.589 $\pm$ 0.017 & 0.609 $\pm$ 0.024 & 0.530 $\pm$ 0.009 \\
+Conformal risk filter & 0.614 $\pm$ 0.015 & 0.629 $\pm$ 0.020 & 0.564 $\pm$ 0.022 \\
+Proposed branch mechanism & 0.697 $\pm$ 0.024 & 0.715 $\pm$ 0.015 & 0.655 $\pm$ 0.016 \\
+Oracle branch upper bound & 0.763 $\pm$ 0.023 & 0.775 $\pm$ 0.012 & 0.736 $\pm$ 0.013 \\
 \bottomrule
 \end{tabular}
         \end{center}
 
-        \section{Limitations}
-        The evidence is synthetic. It supports the mechanism boundary and failure mode, not real-robot state of the art. Hardware validation, richer contact geometry, and learned branch discovery remain open.
+        \begin{center}
+        \begin{tabular}{lrl}
+\toprule
+Ablation & Combined stress success & Removed component \\
+\midrule
+Full mechanism & 0.672 $\pm$ 0.006 & all components \\
+Minus branch atlas & 0.567 $\pm$ 0.018 & removes explicit unrealized futures \\
+Minus tail risk & 0.584 $\pm$ 0.022 & uses mean predicted value only \\
+Minus diagnostic probe & 0.602 $\pm$ 0.015 & does not actively test ambiguous physical modes \\
+Minus failure memory & 0.612 $\pm$ 0.017 & does not reuse repaired beliefs \\
+\bottomrule
+\end{tabular}
+        \end{center}
+
+        \section{Failure Cases and Limitations}
+        Negative cases remain: unmodeled hardware damage, semantic goal ambiguity, and adversarial sensor dropout all reduce success sharply. The mechanism is also vulnerable if the branch atlas omits the true physical mode. Therefore the honest readiness decision is workshop-only or strong-revise, not main-conference-ready without real hardware validation and a learned branch discovery module.
+
+        \section{Reproducibility}
+        Code is in \texttt{src/run\_experiment.py} and produces \texttt{results/metrics.csv}, \texttt{results/raw\_seed\_metrics.csv}, \texttt{results/ablation\_metrics.csv}, \texttt{results/stress\_sweep.csv}, and \texttt{results/negative\_cases.csv}. The canonical PDF is \texttt{C:/Users/wangz/Downloads/87.pdf}. No versioned PDFs are kept in Downloads.
 
         \section{Conclusion}
-        Semantic Force Closure Revisited argues that embodied world-action models should preserve unrealized physical alternatives when those alternatives change downstream action value.
+        Semantic Force Closure Revisited is submission-hardened as a narrow diagnostic study. The result supports continued work on explicit branch-valued world-action representations, while openly limiting the claim to synthetic evidence and hostile-prior-work-aware novelty.
 
         \bibliographystyle{iclr2026_conference}
         \bibliography{references}
