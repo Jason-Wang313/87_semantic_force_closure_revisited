@@ -1,4 +1,5 @@
-case,expected_behavior,observed_success,lesson
-unmodeled_hardware_damage,planner abstains or requests human inspection,0.18,branch semantics cannot repair missing actuation
-semantic_goal_ambiguity,diagnostic physical probes do not solve language ambiguity,0.31,needs a separate instruction-grounding loop
-adversarial_sensor_dropout,tail-risk objective becomes conservative,0.39,sensor-health modeling is out of scope
+case,expected_behavior,observed_outcome,lesson
+unseen_tool_with_hidden_hot_surface,semantic closure should not rely on category label alone,planner selects mechanically safe but semantically unsafe contact without tactile heat cue,"semantic force closure needs sensed task state, not category priors only"
+ambiguous_instruction_grasp_the_top,planner should ask for clarification,language-conditioned scores collapse multiple task closures into one grasp,language ambiguity remains a separate failure mode
+deformable_package_with_unmodeled_contents,planner should avoid high-force closure,semantic contacts are valid but closure force crushes fragile contents,material/state estimation is required for deployment
+transparent_mug_lip_occlusion,functional access constraint should preserve pouring lip,vision-only semantic mask misses the lip and blocks pour,semantic masks require uncertainty-aware perception

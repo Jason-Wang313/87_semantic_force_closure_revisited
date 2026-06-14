@@ -1,16 +1,35 @@
-Submission-hardening experiment for paper 87 semantic_force_closure_revisited
-Seven seeds, 600 episodes per seed, strong baselines, ablations, stress sweep, and negative cases.
-observed_only_behavior_clone hidden_mode_shift mean_success=0.3952 ci95=0.0184 tail=0.6048
-observed_only_behavior_clone combined_stress mean_success=0.3341 ci95=0.0132 tail=0.6659
-data_augmentation_wam hidden_mode_shift mean_success=0.4943 ci95=0.0077 tail=0.5057
-data_augmentation_wam combined_stress mean_success=0.4100 ci95=0.0230 tail=0.5900
-scalar_uncertainty_planner hidden_mode_shift mean_success=0.5678 ci95=0.0180 tail=0.4322
-scalar_uncertainty_planner combined_stress mean_success=0.5031 ci95=0.0156 tail=0.4969
-ensemble_disagreement_planner hidden_mode_shift mean_success=0.5886 ci95=0.0171 tail=0.4114
-ensemble_disagreement_planner combined_stress mean_success=0.5305 ci95=0.0085 tail=0.4695
-conformal_risk_filter hidden_mode_shift mean_success=0.6136 ci95=0.0155 tail=0.3864
-conformal_risk_filter combined_stress mean_success=0.5643 ci95=0.0219 tail=0.4357
-proposed_branch_mechanism hidden_mode_shift mean_success=0.6974 ci95=0.0243 tail=0.3026
-proposed_branch_mechanism combined_stress mean_success=0.6552 ci95=0.0162 tail=0.3448
-oracle_branch_upper_bound hidden_mode_shift mean_success=0.7631 ci95=0.0226 tail=0.2369
-oracle_branch_upper_bound combined_stress mean_success=0.7362 ci95=0.0125 tail=0.2638
+Paper 87 semantic_force_closure_revisited v4 rebuild
+Terminal recommendation: KILL_ARCHIVE
+Reason: deterministic local semantic-force-closure benchmark added; no robot hardware or accepted external dexterous-grasp benchmark is available.
+Main rollout rows: 47040
+Ablation rollout rows: 8232
+Stress rollout rows: 120960
+Seeds: [0, 1, 2, 3, 4, 5, 6]
+
+Combined hard shift:
+geometry_force_closure task_success=0.05527 ci95=0.01434 closure=0.91263 semantic_violation=0.75765 functional_blockage=0.57398 slip=0.07653 damage=0.34184 regret=0.24299
+probabilistic_normals_pong task_success=0.07398 ci95=0.00981 closure=0.89933 semantic_violation=0.70663 functional_blockage=0.54167 slip=0.07738 damage=0.35629 regret=0.22060
+affordance_only_vlm task_success=0.18793 ci95=0.02890 closure=0.46096 semantic_violation=0.15391 functional_blockage=0.29677 slip=0.37075 damage=0.31122 regret=0.09916
+taskgrasp_semantic_ranker task_success=0.23725 ci95=0.01450 closure=0.56385 semantic_violation=0.18708 functional_blockage=0.30782 slip=0.30952 damage=0.31973 regret=0.06854
+language_conditioned_grasp_policy task_success=0.24065 ci95=0.03032 closure=0.57923 semantic_violation=0.18622 functional_blockage=0.32653 slip=0.30527 damage=0.32568 regret=0.07036
+risk_aware_force_closure task_success=0.10289 ci95=0.01456 closure=0.84845 semantic_violation=0.67007 functional_blockage=0.48469 slip=0.10119 damage=0.22194 regret=0.18750
+semantic_force_closure_revisited task_success=0.25595 ci95=0.02584 closure=0.66277 semantic_violation=0.28571 functional_blockage=0.30612 slip=0.22619 damage=0.29422 regret=0.06928
+oracle_task_closure task_success=0.35544 ci95=0.03403 closure=0.66484 semantic_violation=0.18112 functional_blockage=0.22109 slip=0.25000 damage=0.30357 regret=0.00000
+paired task-success diff vs best success baseline language_conditioned_grasp_policy=0.01530 ci95=0.03199
+
+Ablations:
+full_semantic_force_closure task_success=0.25595 ci95=0.02584 semantic_violation=0.28571 functional_blockage=0.30612 damage=0.29422 regret=0.06928
+minus_task_intent_conditioning task_success=0.19813 ci95=0.01683 semantic_violation=0.33503 functional_blockage=0.36224 damage=0.32483 regret=0.08725
+minus_forbidden_surface_semantics task_success=0.19898 ci95=0.01546 semantic_violation=0.42942 functional_blockage=0.32738 damage=0.27891 regret=0.10032
+minus_functional_access_constraint task_success=0.19218 ci95=0.02786 semantic_violation=0.37585 functional_blockage=0.42772 damage=0.29252 regret=0.09873
+minus_material_deformation_risk task_success=0.20493 ci95=0.02569 semantic_violation=0.35204 functional_blockage=0.33163 damage=0.42347 regret=0.08838
+geometry_only_closure_score task_success=0.06718 ci95=0.02171 semantic_violation=0.72364 functional_blockage=0.55952 damage=0.37330 regret=0.22060
+language_only_semantic_score task_success=0.20238 ci95=0.02429 semantic_violation=0.15136 functional_blockage=0.35884 damage=0.30527 regret=0.10452
+
+Combined stress level 1.0:
+probabilistic_normals_pong task_success=0.06607 ci95=0.02604 semantic_violation=0.71250 functional_blockage=0.54286 slip=0.22321 damage=0.35000 regret=0.22472
+taskgrasp_semantic_ranker task_success=0.14643 ci95=0.04743 semantic_violation=0.30893 functional_blockage=0.39107 slip=0.33393 damage=0.41429 regret=0.11267
+language_conditioned_grasp_policy task_success=0.13393 ci95=0.03104 semantic_violation=0.30714 functional_blockage=0.39643 slip=0.38750 damage=0.40357 regret=0.11237
+risk_aware_force_closure task_success=0.06429 ci95=0.01807 semantic_violation=0.68036 functional_blockage=0.51786 slip=0.22857 damage=0.26964 regret=0.20711
+semantic_force_closure_revisited task_success=0.13929 ci95=0.03182 semantic_violation=0.41964 functional_blockage=0.40179 slip=0.29286 damage=0.30893 regret=0.12519
+oracle_task_closure task_success=0.28214 ci95=0.04136 semantic_violation=0.17500 functional_blockage=0.24821 slip=0.33393 damage=0.32321 regret=0.00000

@@ -4,42 +4,156 @@
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{booktabs}
-\title{Semantic Force Closure Revisited: ICLR Main-Conference Gate Archive}
+\usepackage{graphicx}
+
+\graphicspath{{../figures/}}
+
+\title{Semantic Force Closure Revisited:\\A Negative ICLR-Main Evidence Audit}
 \author{Anonymous Authors}
+
 \begin{document}
 \maketitle
+
 \begin{abstract}
-This document is not an ICLR main-conference submission. It is the v3 main-conference gate for a generated robotics draft about grasping and language-conditioned manipulation. The original research bet was: Test when semantic object categories change the relevant closure conditions. After a stricter hostile review, the honest terminal decision is \textbf{KILL/ARCHIVE}. Submission-hardening version: v3.
+Classical force-closure tests ask whether contacts can resist wrench disturbances. Task-oriented grasping and vision-language policies ask whether a grasp matches object semantics. The hypothesis tested here is that these should not be separate filters: object category and task intent can change which contacts count as useful closure. We rebuilt this generated paper around a deterministic local grasp benchmark with four manipulation tasks, five category/task-shift splits, eight methods, seven seeds, 47,040 main rollouts, 8,232 ablation rollouts, and 120,960 stress rollouts. The result is informative but not submission-ready. On the combined hard-shift split, semantic force closure reaches 0.256 task success, compared with 0.241 for the best non-oracle success baseline, a language-conditioned grasp policy. The paired gain is only $0.015 \pm 0.032$. The method beats pure geometry and PONG-style probabilistic-normal baselines, but it does not decisively beat learned semantic baselines, and a language-only semantic score has lower semantic-violation rate. We therefore mark the paper \textbf{KILL/ARCHIVE}: the idea remains interesting, but the present evidence does not support an ICLR-main-target claim.
 \end{abstract}
 
-\section{Gate Decision}
-The v2 paper was workshop-only. Under the active ICLR-main standard, that is insufficient. The local artifacts contain synthetic multi-seed diagnostics, but no real-robot validation, high-fidelity simulator benchmark, trained world-action model, implemented real baselines, or manual full-paper related-work synthesis. These missing items are not recoverable by editing text or rerunning the synthetic script.
+\section{Terminal Decision}
+\textbf{Decision: KILL/ARCHIVE for ICLR main.} The v4 repository contains a paper-specific semantic-force-closure benchmark, implemented baselines, ablations, stress sweeps, figures, and reproducibility files. The evidence shows that task semantics matter for grasp closure, but not that the proposed planner is a decisive contribution over strong language-conditioned or task-grasp baselines. The project also lacks robot hardware and accepted external dexterous-grasp benchmark validation.
 
-\section{Fatal ICLR-Main Blockers}
+\section{Research Question}
+The intended claim was:
+\begin{quote}
+Semantic object categories change the relevant closure conditions for grasping and manipulation.
+\end{quote}
+This is plausible. A mechanically stable grasp on a mug rim may block pouring; a stable grasp on a tool blade may be semantically invalid; a force-closed grasp on a spray trigger may prevent activation; and a high-force grasp on a deformable package may damage contents. The v4 rebuild asks whether explicitly scoring semantic force closure improves task outcomes beyond geometry, probabilistic normals, VLM affordance scores, task-grasp semantic rankers, language-conditioned policies, and risk-aware force closure.
+
+\section{Hostile Prior Work}
+The local pool makes the novelty boundary narrow. The closest threats include PONG-style probabilistic object normals, language-conditioned task-oriented grasping, VLM grasp pipelines, prompt-guided force-closure analysis, tactile force-control work, soft-gripper force analysis, and open-vocabulary manipulation systems. The rebuild therefore avoids claiming novelty from ``language plus grasping'' or ``force closure plus uncertainty.'' It tests only whether semantic/task closure changes selected contacts and downstream success.
+
+\section{Benchmark}
+The benchmark simulates four manipulation settings:
 \begin{itemize}
-\item Evidence is synthetic and generated from a shared batch template.
-\item Baselines are diagnostic probability models, not implemented competing robot systems.
-\item Ablations do not correspond to a trained model checkpoint.
-\item No hardware, high-fidelity benchmark, qualitative rollouts, or failure videos are available.
-\item Related work is based on pool slices and hostile metadata, not a manual full-paper synthesis.
-\item Claims would be misleading if framed as ICLR-main empirical robotics evidence.
+\item \textbf{mug pour and handoff,} where handles, lips, and interiors have different task constraints.
+\item \textbf{tool-use handle grasping,} where blade or tip contacts may be stable but invalid.
+\item \textbf{spray-bottle activation,} where the trigger and nozzle must remain accessible.
+\item \textbf{deformable-package lifting,} where high closure force can crush or tear the object.
+\end{itemize}
+Each episode generates candidate contacts with mechanical closure, surface-normal uncertainty, friction, semantic validity, functional access, deformation risk, language ambiguity, and noisy observations. The splits are seen categories/tasks, novel category with same semantics, task-intent shift, ambiguous-language shift, and combined hard shift.
+
+\section{Methods}
+We compare:
+\begin{itemize}
+\item \textbf{Geometry force closure:} ranks contacts by mechanical closure and friction.
+\item \textbf{PONG-like probabilistic normals:} penalizes normal uncertainty in a force-closure score.
+\item \textbf{Affordance-only VLM:} ranks by semantic and category affordance without mechanical grounding.
+\item \textbf{TaskGrasp semantic ranker:} combines semantic and task-conditioned contact scores.
+\item \textbf{Language-conditioned grasp policy:} blends language alignment, semantics, and weak geometry.
+\item \textbf{Risk-aware force closure:} prioritizes closure while penalizing deformation and uncertainty.
+\item \textbf{Semantic force closure:} the proposed planner with mechanical, semantic, functional, and material terms.
+\item \textbf{Oracle task closure:} hidden true task score.
 \end{itemize}
 
-\section{Hostile Prior-Work Pressure}
-The closest local hostile records include:
+\section{Main Results}
+Table~\ref{tab:main} reports the combined hard-shift split. The proposed method is much better than geometry-only and PONG-like closure, which often choose high-closure contacts that violate semantic or functional constraints. However, it does not decisively beat learned semantic baselines: the best non-oracle success baseline, language-conditioned grasp policy, reaches 0.241 success, while the proposed method reaches 0.256. The paired gain is only $0.01530 \pm 0.03199$.
+
+\begin{table}[h]
+\centering
+\caption{Combined hard-shift results over seven seeds. Confidence intervals are 95\% intervals over seed means. Lower semantic violation, blockage, slip, damage, and regret are better.}
+\label{tab:main}
+\begin{tabular}{lrrrrr}
+\toprule
+Method & Success & Sem. viol. & Blockage & Damage & Regret \\
+\midrule
+Geometry closure & $0.055 \pm 0.014$ & $0.758$ & $0.574$ & $0.342$ & $0.243$ \\
+PONG-like normals & $0.074 \pm 0.010$ & $0.707$ & $0.542$ & $0.356$ & $0.221$ \\
+Affordance VLM & $0.188 \pm 0.029$ & $0.154$ & $\mathbf{0.297}$ & $0.311$ & $0.099$ \\
+TaskGrasp ranker & $0.237 \pm 0.015$ & $0.187$ & $0.308$ & $0.320$ & $\mathbf{0.069}$ \\
+Language grasp policy & $0.241 \pm 0.030$ & $0.186$ & $0.327$ & $0.326$ & $0.070$ \\
+Risk-aware closure & $0.103 \pm 0.015$ & $0.670$ & $0.485$ & $\mathbf{0.222}$ & $0.188$ \\
+Semantic force closure & $\mathbf{0.256 \pm 0.026}$ & $0.286$ & $0.306$ & $0.294$ & $0.069$ \\
+Oracle task closure & $0.355 \pm 0.034$ & $0.181$ & $0.221$ & $0.304$ & $0.000$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.92\linewidth]{semantic_force_closure_success.png}
+\caption{Task success across category/task-shift splits. Semantic force closure improves over mechanical baselines, but learned semantic baselines remain competitive.}
+\label{fig:success}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.88\linewidth]{semantic_force_closure_hard_shift.png}
+\caption{Hard-shift success, semantic violation, and functional blockage. The proposed method is not the clean winner on semantic validity.}
+\label{fig:hard}
+\end{figure}
+
+\section{Ablations}
+The ablations show that the proposed components matter relative to geometry-only closure, but they do not rescue the main claim. Removing task intent, forbidden-surface semantics, functional access, or material risk drops success. Yet a language-only semantic score has lower semantic-violation rate than the full method, and the full method's success margin over the strongest learned baseline remains too small.
+
+\begin{table}[h]
+\centering
+\caption{Semantic-force-closure ablations on combined hard shift.}
+\label{tab:ablation}
+\begin{tabular}{lrrrr}
+\toprule
+Ablation & Success & Sem. viol. & Blockage & Damage \\
+\midrule
+Full semantic force closure & $\mathbf{0.256 \pm 0.026}$ & $0.286$ & $\mathbf{0.306}$ & $0.294$ \\
+Minus task intent & $0.198 \pm 0.017$ & $0.335$ & $0.362$ & $0.325$ \\
+Minus forbidden surfaces & $0.199 \pm 0.015$ & $0.429$ & $0.327$ & $\mathbf{0.279}$ \\
+Minus functional access & $0.192 \pm 0.028$ & $0.376$ & $0.428$ & $0.293$ \\
+Minus material risk & $0.205 \pm 0.026$ & $0.352$ & $0.332$ & $0.423$ \\
+Geometry-only score & $0.067 \pm 0.022$ & $0.724$ & $0.560$ & $0.373$ \\
+Language-only score & $0.202 \pm 0.024$ & $\mathbf{0.151}$ & $0.359$ & $0.305$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.88\linewidth]{semantic_force_closure_ablation.png}
+\caption{Ablation success on combined hard shift. The components help, but the margin is not enough for a main-conference claim.}
+\label{fig:ablation}
+\end{figure}
+
+\section{Stress Tests}
+Stress sweeps vary surface-normal noise, friction shift, semantic label noise, task-language ambiguity, material/deformation shift, and combined stress. At maximum combined stress, semantic force closure reaches 0.139 success. TaskGrasp reaches 0.146 and language-conditioned grasping reaches 0.134, so the proposed method is not robustly dominant under the hardest stress. The oracle remains at 0.282, indicating that better task-closure selection is possible but not achieved by the current mechanism.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.88\linewidth]{semantic_force_closure_stress_sweep.png}
+\caption{Combined stress sweep. The proposed method is competitive but not dominant at maximum stress.}
+\label{fig:stress}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.86\linewidth]{semantic_force_closure_failures.png}
+\caption{Physical failure modes on combined hard shift. Risk-aware force closure has lower damage, while learned semantic baselines have lower semantic violation.}
+\label{fig:failures}
+\end{figure}
+
+\section{Why This Is Not Submission-Ready}
+The project fails the ICLR-main readiness gate for four reasons.
 \begin{itemize}
-\item PONG: Probabilistic Object Normals for Grasping via Analytic Bounds on Force Closure Probability (2023)
-\item GraspMind: Multi-Granularity Language-Conditioned Affordance Prediction for Robotic Grasping (n.d.)
-\item Development and Evaluation of a Vision-Language Guided Robotic Manipulation Pipeline (n.d.)
-\item Development and Evaluation of a Vision-Language Guided Robotic Manipulation Pipeline (n.d.)
-\item Analysis of Contact Force and Shape Change on Grasping a Square Object Using an Actual Fin Ray Soft Gripper (2023)
+\item \textbf{Non-decisive success margin.} The paired gain over the best learned semantic baseline is only $0.01530 \pm 0.03199$.
+\item \textbf{Semantic validity is not dominant.} A language-only semantic score has lower semantic-violation rate than the full method.
+\item \textbf{Stress robustness is mixed.} At maximum combined stress, TaskGrasp slightly beats the proposed method on success.
+\item \textbf{Evidence ceiling.} The benchmark is deterministic and reproducible but local; it is not robot hardware, not a high-fidelity dexterous simulator, and not an accepted public grasp benchmark.
 \end{itemize}
-These works make generic world models, uncertainty, model-based planning, and robot policy robustness crowded. Without real empirical evidence, the remaining novelty boundary is too weak for ICLR main.
 
-\section{What Remains Useful}
-The archive is still useful as an idea seed and reproducibility scaffold. The synthetic code, stress-test CSVs, reviewer attacks, and novelty-boundary docs can inform a future project. The correct next step is not more paper polishing; it is new evidence: implemented models, real baselines, manual related work, and robot or high-fidelity simulator validation.
+\section{Reproducibility}
+Run the benchmark from the repository root:
+\begin{verbatim}
+python src\run_experiment.py
+\end{verbatim}
+The script writes rollout CSVs, seed-level metrics, pairwise statistics, ablations, stress sweeps, negative cases, summary text, and the figures used in this manuscript. The canonical local PDF is \texttt{C:/Users/wangz/Downloads/87.pdf}.
 
-\section{Terminal Action}
-Decision: \textbf{KILL/ARCHIVE for ICLR main}. Do not submit this paper to ICLR main in the current form. Revival requires a substantially new empirical project.
+\section{Conclusion}
+Semantic force closure remains a good research question. The v4 benchmark shows that mechanical closure alone fails badly when task semantics and functional surfaces matter. But the proposed mechanism does not decisively beat strong learned semantic baselines, and the evidence remains local-only. The honest terminal action is \textbf{KILL/ARCHIVE}.
 
 \end{document}
